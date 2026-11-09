@@ -8,13 +8,12 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# Estilos CSS ejecutivos y altamente creativos (Branding Avianca, sin emojis)
+# Estilos CSS ejecutivos y creativos (Branding Avianca, sin emojis)
 st.markdown("""
     <style>
     .main { background-color: #f4f6f9; }
     h1, h2, h3 { color: #d32f2f !important; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-weight: 700; }
     
-    /* Botones personalizados estilo corporativo */
     .stButton>button {
         background-color: #d32f2f;
         color: white;
@@ -31,7 +30,6 @@ st.markdown("""
         box-shadow: 0 4px 12px rgba(211, 47, 47, 0.3);
     }
     
-    /* Tarjetas de instrumentos mejoradas con diseño moderno */
     .card-instrumento {
         background: linear-gradient(145deg, #ffffff 0%, #fcfcfc 100%);
         padding: 28px;
@@ -44,7 +42,6 @@ st.markdown("""
         height: 100%;
     }
     
-    /* Tarjetas del instructivo */
     .card-instructivo {
         background: #ffffff;
         padding: 22px;
@@ -57,7 +54,6 @@ st.markdown("""
         border-bottom: 1px solid #f0f0f0;
     }
     
-    /* Tarjetas de historial y auditoría */
     .card-historial {
         background: #ffffff;
         padding: 18px;
@@ -88,6 +84,26 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
+# INICIALIZACIÓN DE ESTADOS EN TIEMPO REAL (SESSION STATE)
+if 'matriz_red' not in st.session_state:
+    st.session_state.matriz_red = pd.DataFrame({
+        "Estación": ["BOG Bogotá El Dorado", "MDE Medellín Rionegro", "CLO Cali", "CTG Cartagena", "MIA Miami", "MAD Madrid", "SAL San Salvador", "LET Leticia", "Promedio de red"],
+        "Equipaje de mano (regla con margen)": ["48 - En riesgo", "69 - Adoptado", "52 - En riesgo", "82 - Adoptado", "74 - En verificación", "45 - En riesgo", "85 - Adoptado", "55 - En riesgo", "64"],
+        "Baterías de litio (regla dura)": ["86 - Adoptado", "90 - Adoptado", "84 - Adoptado", "Cerrado", "88 - Adoptado", "80 - Adoptado", "Cerrado", "83 - Adoptado", "85"],
+        "Documentos de viaje": ["En despliegue", "No aplica", "En despliegue", "No aplica", "No aplica", "En despliegue", "70", "No aplica", "70"],
+        "Plastificado BOG": ["72", "No aplica", "No aplica", "No aplica", "No aplica", "No aplica", "No aplica", "No aplica", "72"],
+        "Business Class Américas": ["En despliegue", "En despliegue", "No aplica", "No aplica", "En despliegue", "No aplica", "No aplica", "No aplica", "—"],
+        "Carga (máx. 3)": [5, 3, 4, 1, 3, 4, 3, 2, 3.1]
+    })
+
+if 'historial_pulsos' not in st.session_state:
+    st.session_state.historial_pulsos = [
+        {"estacion": "BOG Bogotá El Dorado", "periodo": "Semana 44 (26 Oct 2026)", "politica": "Equipaje de mano", "resultado": "Indice de alineación 58% (Alerta roja - Brecha de criterio en mostrador)", "color": "#d32f2f"},
+        {"estacion": "MDE Medellín Rionegro", "periodo": "Semana 44 (26 Oct 2026)", "politica": "Baterías de litio", "resultado": "Indice de alineación 90% (Adoptado satisfactoriamente)", "color": "#2e7d32"},
+        {"estacion": "CLO Cali", "periodo": "Semana 43 (19 Oct 2026)", "politica": "Equipaje de mano", "resultado": "Indice de alineación 62% (Intervención de instructor asignada)", "color": "#d32f2f"},
+        {"estacion": "MAD Madrid", "periodo": "Semana 43 (19 Oct 2026)", "politica": "Documentos de viaje", "resultado": "Fase de despliegue inicial completada (70%)", "color": "#1976d2"}
+    ]
+
 # Encabezado institucional superior con logotipo oficial
 st.markdown("""
     <div class="header-container">
@@ -102,7 +118,7 @@ st.markdown("""
     </div>
 """, unsafe_allow_html=True)
 
-# Pestañas de navegación superiores basadas en la arquitectura de la presentación
+# Pestañas de navegación superiores
 tab_home, tab_ficha, tab_pulso, tab_tablero, tab_fases = st.tabs([
     "Modelo e Instructivo", 
     "1. Ficha (Compuerta)", 
@@ -146,28 +162,23 @@ with tab_home:
         """, unsafe_allow_html=True)
         
     st.markdown("<br><br>", unsafe_allow_html=True)
-    st.markdown("### Instructivo Operativo de la Plataforma")
+    st.markdown("### Instructivo Operativo de la Plataforma (En Tiempo Real)")
     st.markdown("Guía rápida para la sustentación y demostración en vivo ante el comité:")
 
     st.markdown("""
     <div class="card-instructivo">
         <h4 style="margin:0 0 6px 0; color:#d32f2f; font-size:16px;">Sección 1: Ficha (Compuerta de Capacidad)</h4>
-        <p style="margin:0; font-size:13px; color:#444; line-height: 1.5;"><b>Objetivo:</b> Simular el registro formal de directrices normativas. Seleccione la política y el criterio único. La compuerta evalúa automáticamente si las estaciones seleccionadas tienen la capacidad de asimilación disponible antes de autorizar el despliegue.</p>
+        <p style="margin:0; font-size:13px; color:#444; line-height: 1.5;"><b>Objetivo:</b> Simular el registro formal de directrices normativas.</p>
     </div>
     
     <div class="card-instructivo">
-        <h4 style="margin:0 0 6px 0; color:#d32f2f; font-size:16px;">Sección 2: Pulso Semanal (Incluye Registro e Historial)</h4>
-        <p style="margin:0; font-size:13px; color:#444; line-height: 1.5;"><b>Objetivo:</b> Evaluar en campo el nivel de alineación real de los agentes. Configure las observaciones y la consistencia. Al final de la sección, consulte el <b>historial cronológico de auditorías anteriores</b> para verificar la trazabilidad temporal.</p>
+        <h4 style="margin:0 0 6px 0; color:#d32f2f; font-size:16px;">Sección 2: Pulso Semanal (Actualización Dinámica)</h4>
+        <p style="margin:0; font-size:13px; color:#444; line-height: 1.5;"><b>Objetivo:</b> Al registrar un nuevo pulso aquí, <b>se actualizará instantáneamente el valor correspondiente en la matriz del Tablero de Adopción</b> y se agregará al historial cronológico inferior.</p>
     </div>
     
     <div class="card-instructivo">
         <h4 style="margin:0 0 6px 0; color:#d32f2f; font-size:16px;">Sección 3: Tablero de Adopción</h4>
-        <p style="margin:0; font-size:13px; color:#444; line-height: 1.5;"><b>Objetivo:</b> Cuadro de mando ejecutivo con la matriz completa de red. Muestra en tiempo real qué estaciones han adoptado las políticas y cuáles presentan celdas en riesgo por saturación.</p>
-    </div>
-
-    <div class="card-instructivo">
-        <h4 style="margin:0 0 6px 0; color:#d32f2f; font-size:16px;">Sección: Despliegue por Fases</h4>
-        <p style="margin:0; font-size:13px; color:#444; line-height: 1.5;"><b>Objetivo:</b> Presentar la hoja de ruta de implementación escalonada (Fase 0 a Fase 3) y la composición ponderada del índice operativo del modelo.</p>
+        <p style="margin:0; font-size:13px; color:#444; line-height: 1.5;"><b>Objetivo:</b> Refleja de forma centralizada el estado operativo actual de la red.</p>
     </div>
     """, unsafe_allow_html=True)
 
@@ -213,55 +224,73 @@ with tab_pulso:
     st.markdown("Menos de 2 minutos por levantamiento en el celular del instructor (10 min por semana por estación).")
     st.markdown("<br>", unsafe_allow_html=True)
     
-    col_p1, col_p2 = st.columns(2)
-    with col_p1:
-        estacion_pulso = st.selectbox("Estacion evaluada", ["BOG Bogotá El Dorado", "MDE Medellín Rionegro", "CLO Cali", "CTG Cartagena", "MAD Madrid", "MIA Miami"])
-        semana = st.selectbox("Periodo de auditoria actual", ["Semana 45 - 2 Nov 2026", "Semana 46 - 9 Nov 2026", "Semana 47 - 16 Nov 2026"])
-        cambio_eval = st.selectbox("Politica auditada", ["Equipaje de mano (regla con margen)", "Baterias de litio", "Documentos de viaje"])
-        
-    with col_p2:
-        st.markdown("<b>Verificacion en Puesto (5 observaciones)</b>", unsafe_allow_html=True)
-        obs_conformes = st.slider("Observaciones conformes detectadas", 0, 5, 4)
-        
-        st.markdown("<b>Prueba de Consistencia (3 Agentes)</b>", unsafe_allow_html=True)
-        resp_a = st.selectbox("Agente Turno A", ["Acepta criterio unificado", "Discrepa criterio"])
-        resp_b = st.selectbox("Agente Turno B", ["Acepta criterio unificado", "Discrepa criterio"])
-        resp_c = st.selectbox("Agente Turno C", ["Acepta criterio unificado", "Discrepa criterio"])
+    with st.form("form_pulso_realtime"):
+        col_p1, col_p2 = st.columns(2)
+        with col_p1:
+            estacion_pulso = st.selectbox("Estacion evaluada", ["BOG Bogotá El Dorado", "MDE Medellín Rionegro", "CLO Cali", "CTG Cartagena", "MIA Miami", "MAD Madrid", "SAL San Salvador", "LET Leticia"])
+            semana = st.selectbox("Periodo de auditoria actual", ["Semana 45 - 2 Nov 2026", "Semana 46 - 9 Nov 2026", "Semana 47 - 16 Nov 2026"])
+            cambio_eval = st.selectbox("Politica auditada", ["Equipaje de mano (regla con margen)", "Baterias de litio (regla dura)", "Documentos de viaje"])
+            
+        with col_p2:
+            st.markdown("<b>Verificacion en Puesto (5 observaciones)</b>", unsafe_allow_html=True)
+            obs_conformes = st.slider("Observaciones conformes detectadas", 0, 5, 4)
+            
+            st.markdown("<b>Prueba de Consistencia (3 Agentes)</b>", unsafe_allow_html=True)
+            resp_a = st.selectbox("Agente Turno A", ["Acepta criterio unificado", "Discrepa criterio"])
+            resp_b = st.selectbox("Agente Turno B", ["Acepta criterio unificado", "Discrepa criterio"])
+            resp_c = st.selectbox("Agente Turno C", ["Acepta criterio unificado", "Discrepa criterio"])
 
-    st.markdown("<br>", unsafe_allow_html=True)
-    if st.button("Registrar Pulso Semanal"):
-        st.success(f"Pulso registrado correctamente para {estacion_pulso} ({semana}). Datos sincronizados con el tablero central.")
+        st.markdown("<br>", unsafe_allow_html=True)
+        btn_registrar_pulso = st.form_submit_button("Registrar Pulso en Tiempo Real")
 
-    # NUEVA SECCIÓN: HISTORIAL DE AUDITORÍAS CON FECHAS
+    if btn_registrar_pulso:
+        # Calcular nuevo puntaje simulado basado en el slider y consistencia
+        puntaje_calculado = int((obs_conformes / 5.0) * 80 + (20 if (resp_a == resp_b == resp_c) else 5))
+        estado_texto = f"{puntaje_calculado} - Adoptado" if puntaje_calculado >= 75 else f"{puntaje_calculado} - En riesgo"
+        
+        # Mapeo de columnas en la matriz de red
+        columna_politica = "Equipaje de mano (regla con margen)"
+        if "Baterías" in cambio_eval:
+            columna_politica = "Baterías de litio (regla dura)"
+        elif "Documentos" in cambio_eval:
+            columna_politica = "Documentos de viaje"
+
+        # Actualizar la matriz de red en tiempo real en la sesión
+        df_temp = st.session_state.matriz_red
+        idx_estacion = df_temp.index[df_temp["Estación"] == estacion_pulso].tolist()
+        
+        if idx_estacion and columna_politica in df_temp.columns:
+            df_temp.at[idx_estacion[0], columna_politica] = estado_texto
+            st.session_state.matriz_red = df_temp
+
+        # Agregar al historial cronológico en tiempo real
+        nuevo_historial = {
+            "estacion": estacion_pulso,
+            "periodo": semana,
+            "politica": cambio_eval,
+            "resultado": f"Indice de alineación calculado: {puntaje_calculado}% (Actualizado en tiempo real)",
+            "color": "#2e7d32" if puntaje_calculado >= 75 else "#d32f2f"
+        }
+        st.session_state.historial_pulsos.insert(0, nuevo_historial)
+        
+        st.success(f"Pulso registrado para {estacion_pulso}. ¡Matriz de red y tablero actualizados en tiempo real con puntaje de {puntaje_calculado}%!")
+
+    # SECCIÓN HISTÓRICA CON FECHAS (DINÁMICA)
     st.markdown("<br><hr>", unsafe_allow_html=True)
     st.subheader("Historial Cronológico de Auditorías de Pulso")
     st.markdown("Registro histórico de trazabilidad e índices de alineación previos por estación:")
     
-    st.markdown("""
-    <div class="card-historial">
-        <b>Estación: BOG Bogotá El Dorado</b> | <b>Periodo:</b> Semana 44 (26 Oct 2026) | <b>Política:</b> Equipaje de mano<br>
-        <span style="color: #d32f2f; font-weight: 600;">Resultado: Indice de alineación 58% (Alerta roja - Brecha de criterio en mostrador)</span>
-    </div>
-    
-    <div class="card-historial">
-        <b>Estación: MDE Medellín Rionegro</b> | <b>Periodo:</b> Semana 44 (26 Oct 2026) | <b>Política:</b> Baterías de litio<br>
-        <span style="color: #2e7d32; font-weight: 600;">Resultado: Indice de alineación 90% (Adoptado satisfactoriamente)</span>
-    </div>
-
-    <div class="card-historial">
-        <b>Estación: CLO Cali</b> | <b>Periodo:</b> Semana 43 (19 Oct 2026) | <b>Política:</b> Equipaje de mano<br>
-        <span style="color: #d32f2f; font-weight: 600;">Resultado: Indice de alineación 62% (Intervención de instructor asignada)</span>
-    </div>
-
-    <div class="card-historial">
-        <b>Estación: MAD Madrid</b> | <b>Periodo:</b> Semana 43 (19 Oct 2026) | <b>Política:</b> Documentos de viaje<br>
-        <span style="color: #1976d2; font-weight: 600;">Resultado: Fase de despliegue inicial completada (70%)</span>
-    </div>
-    """, unsafe_allow_html=True)
+    for item in st.session_state.historial_pulsos:
+        st.markdown(f"""
+        <div class="card-historial">
+            <b>Estación: {item['estacion']}</b> | <b>Periodo:</b> {item['periodo']} | <b>Política:</b> {item['politica']}<br>
+            <span style="color: {item['color']}; font-weight: 600;">Resultado: {item['resultado']}</span>
+        </div>
+        """, unsafe_allow_html=True)
 
 with tab_tablero:
     st.subheader("Instrumento 3: Tablero Semanal de Adopción por Estación")
-    st.markdown("Semana 45 - 2 Nov 2026 | Dónde se está quedando cada cambio, esta semana.")
+    st.markdown("Semana 45 - 2 Nov 2026 | Dónde se está quedando cada cambio, esta semana (Actualizado en tiempo real).")
     st.markdown("<br>", unsafe_allow_html=True)
     
     # Métricas superiores ejecutivas idénticas a la Diapositiva 9
@@ -277,23 +306,12 @@ with tab_tablero:
         
     st.markdown("<br>", unsafe_allow_html=True)
     
-    # Matriz oficial completa exacta a la Diapositiva 9 de la presentación
-    data_matriz = {
-        "Estación": ["BOG Bogotá El Dorado", "MDE Medellín Rionegro", "CLO Cali", "CTG Cartagena", "MIA Miami", "MAD Madrid", "SAL San Salvador", "LET Leticia", "Promedio de red"],
-        "Equipaje de mano (regla con margen)": ["48 - En riesgo", "69 - Adoptado", "52 - En riesgo", "82 - Adoptado", "74 - En verificación", "45 - En riesgo", "85 - Adoptado", "55 - En riesgo", "64"],
-        "Baterías de litio (regla dura)": ["86 - Adoptado", "90 - Adoptado", "84 - Adoptado", "Cerrado", "88 - Adoptado", "80 - Adoptado", "Cerrado", "83 - Adoptado", "85"],
-        "Documentos de viaje": ["En despliegue", "No aplica", "En despliegue", "No aplica", "No aplica", "En despliegue", "70", "No aplica", "70"],
-        "Plastificado BOG": ["72", "No aplica", "No aplica", "No aplica", "No aplica", "No aplica", "No aplica", "No aplica", "72"],
-        "Business Class Américas": ["En despliegue", "En despliegue", "No aplica", "No aplica", "En despliegue", "No aplica", "No aplica", "No aplica", "—"],
-        "Carga (máx. 3)": [5, 3, 4, 1, 3, 4, 3, 2, 3.1]
-    }
-    
-    df_matriz = pd.DataFrame(data_matriz)
-    st.dataframe(df_matriz, use_container_width=True)
+    # MOSTRAR LA MATRIZ DINÁMICA EN TIEMPO REAL DESDE SESSION STATE
+    st.dataframe(st.session_state.matriz_red, use_container_width=True)
     
     st.markdown("""
     <div style="background-color: #eef2f7; padding: 14px; border-radius: 6px; font-size: 12px; color: #333; margin-top: 15px;">
-        <b>Convenciones de estados:</b> Adoptado | En riesgo | Cerrado | En despliegue | No aplica | Índice 0-100 sin ranking.
+        <b>Convenciones de estados:</b> Adoptado | En riesgo | Cerrado | En despliegue | No aplica | Índice 0-100 sin ranking. (Los valores se actualizan en vivo al registrar un pulso).
     </div>
     """, unsafe_allow_html=True)
 
