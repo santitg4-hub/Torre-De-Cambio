@@ -259,7 +259,10 @@ with tab_pulso:
             df_temp.at[idx_estacion[0], columna_politica] = estado_texto
             st.session_state.matriz_red = df_temp
 
-        nuevo_id = max([item['id'] for item in st.session_state.historial_pulsos], default=0) + 1
+        # Generación de ID blindada contra listas vacías o elementos sin ID
+        ids_existentes = [item.get('id', 0) for item in st.session_state.historial_pulsos if isinstance(item, dict)]
+        nuevo_id = max(ids_existentes, default=0) + 1
+        
         nuevo_historial = {
             "id": nuevo_id,
             "estacion": estacion_pulso,
@@ -279,33 +282,37 @@ with tab_pulso:
     if len(st.session_state.historial_pulsos) > 0:
         st.markdown("Seleccione un registro histórico para eliminarlo si lo requiere:")
         with st.form("form_eliminar_historial"):
-            # Generación segura de opciones evitando KeyError
             opciones_historial = {}
             for item in st.session_state.historial_pulsos:
-                r_id = item.get('id', 0)
-                r_est = item.get('estacion', 'Desconocida')
-                r_pol = item.get('politica', 'Política')
-                r_per = item.get('periodo', 'Periodo')
-                texto_opcion = f"ID {r_id} | {r_est} - {r_pol} ({r_per})"
-                opciones_historial[texto_opcion] = r_id
+                if isinstance(item, dict):
+                    r_id = item.get('id', 0)
+                    r_est = item.get('estacion', 'Desconocida')
+                    r_pol = item.get('politica', 'Política')
+                    r_per = item.get('periodo', 'Periodo')
+                    texto_opcion = f"ID {r_id} | {r_est} - {r_pol} ({r_per})"
+                    opciones_historial[texto_opcion] = r_id
             
-            registro_a_borrar = st.selectbox("Seleccione el registro de auditoría a eliminar", options=list(opciones_historial.keys()))
-            btn_eliminar = st.form_submit_button("Eliminar Registro Seleccionado")
-            
-            if btn_eliminar and registro_a_borrar:
-                id_a_quitar = opciones_historial[registro_a_borrar]
-                st.session_state.historial_pulsos = [item for item in st.session_state.historial_pulsos if item.get('id') != id_a_quitar]
-                st.success(f"Registro eliminado correctamente de la base de datos histórica.")
-                st.rerun()
+            if len(opciones_historial) > 0:
+                registro_a_borrar = st.selectbox("Seleccione el registro de auditoría a eliminar", options=list(opciones_historial.keys()))
+                btn_eliminar = st.form_submit_button("Eliminar Registro Seleccionado")
+                
+                if btn_eliminar and registro_a_borrar:
+                    id_a_quitar = opciones_historial[registro_a_borrar]
+                    st.session_state.historial_pulsos = [item for item in st.session_state.historial_pulsos if isinstance(item, dict) and item.get('id') != id_a_quitar]
+                    st.success(f"Registro eliminado correctamente de la base de datos histórica.")
+                    st.rerun()
+            else:
+                st.info("No hay opciones disponibles para eliminar.")
 
         st.markdown("<br>", unsafe_allow_html=True)
         for item in st.session_state.historial_pulsos:
-            st.markdown(f"""
-            <div class="card-historial">
-                <b>ID Registro: {item.get('id')} | Estación: {item.get('estacion')}</b> | <b>Periodo:</b> {item.get('periodo')} | <b>Política:</b> {item.get('politica')}<br>
-                <span style="color: {item.get('color', '#333')}; font-weight: 600;">Resultado: {item.get('resultado')}</span>
-            </div>
-            """, unsafe_allow_html=True)
+            if isinstance(item, dict):
+                st.markdown(f"""
+                <div class="card-historial">
+                    <b>ID Registro: {item.get('id', 'N/A')} | Estación: {item.get('estacion', 'N/A')}</b> | <b>Periodo:</b> {item.get('periodo', 'N/A')} | <b>Política:</b> {item.get('politica', 'N/A')}<br>
+                    <span style="color: {item.get('color', '#333')}; font-weight: 600;">Resultado: {item.get('resultado', 'N/A')}</span>
+                </div>
+                """, unsafe_allow_html=True)
     else:
         st.info("No hay registros históricos de pulso en este momento.")
 
