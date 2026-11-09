@@ -209,7 +209,6 @@ with tab_ficha:
         st.markdown("<br>", unsafe_allow_html=True)
         btn_ficha = st.form_submit_button("Validar y Registrar Ficha en Compuerta")
         if btn_ficha:
-            # Actualizar carga en la matriz en ceros al validar ficha
             df_temp = st.session_state.matriz_red
             for est in estaciones_ficha:
                 idx = df_temp.index[df_temp["Estación"] == est].tolist()
@@ -273,12 +272,12 @@ with tab_pulso:
         
         st.success(f"Pulso registrado para {estacion_pulso}. Tablero y matriz actualizados en tiempo real.")
 
-    # SECCIÓN HISTÓRICA CON GESTIÓN Y BOTÓN DE ELIMINAR
+    # SECCIÓN HISTÓRICA CON GESTIÓN Y PROTECCIÓN CONTRA LISTA VACÍA
     st.markdown("<br><hr>", unsafe_allow_html=True)
     st.subheader("Historial Cronológico y Gestión de Auditorías")
-    st.markdown("Seleccione un registro histórico para eliminarlo durante su simulación:")
     
     if len(st.session_state.historial_pulsos) > 0:
+        st.markdown("Seleccione un registro histórico para eliminarlo durante su simulación:")
         with st.form("form_eliminar_historial"):
             opciones_historial = {f"ID {item['id']} | {item['estacion']} - {item['politica']} ({item['periodo']})": item['id'] for item in st.session_state.historial_pulsos}
             
@@ -300,7 +299,7 @@ with tab_pulso:
             </div>
             """, unsafe_allow_html=True)
     else:
-        st.info("No hay registros históricos de pulso en este momento (Escenario en ceros).")
+        st.info("No hay registros históricos de pulso en este momento (Escenario en ceros). Registre un pulso arriba para visualizarlo aquí.")
 
 with tab_tablero:
     st.subheader("Instrumento 3: Tablero Semanal de Adopción por Estación")
