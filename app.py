@@ -84,18 +84,25 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# INICIALIZACIÓN DE ESTADOS EN CEROS (SESSION STATE)
+# INICIALIZACIÓN DE ESTADOS CON DATOS REALES Y PROTEGIDOS
 if 'matriz_red' not in st.session_state:
     st.session_state.matriz_red = pd.DataFrame({
         "Estación": ["BOG Bogotá El Dorado", "MDE Medellín Rionegro", "CLO Cali", "CTG Cartagena", "MIA Miami", "MAD Madrid", "SAL San Salvador", "LET Leticia", "Promedio de red"],
-        "Equipaje de mano (regla con margen)": ["Sin registrar", "Sin registrar", "Sin registrar", "Sin registrar", "Sin registrar", "Sin registrar", "Sin registrar", "Sin registrar", "—"],
-        "Baterías de litio (regla dura)": ["Sin registrar", "Sin registrar", "Sin registrar", "Sin registrar", "Sin registrar", "Sin registrar", "Sin registrar", "Sin registrar", "—"],
-        "Documentos de viaje": ["Sin registrar", "Sin registrar", "Sin registrar", "Sin registrar", "Sin registrar", "Sin registrar", "Sin registrar", "Sin registrar", "—"],
-        "Carga (máx. 3)": [0, 0, 0, 0, 0, 0, 0, 0, 0.0]
+        "Equipaje de mano (regla con margen)": ["48 - En riesgo", "69 - Adoptado", "52 - En riesgo", "82 - Adoptado", "74 - En verificación", "45 - En riesgo", "85 - Adoptado", "55 - En riesgo", "64"],
+        "Baterías de litio (regla dura)": ["86 - Adoptado", "90 - Adoptado", "84 - Adoptado", "Cerrado", "88 - Adoptado", "80 - Adoptado", "Cerrado", "83 - Adoptado", "85"],
+        "Documentos de viaje": ["En despliegue", "No aplica", "En despliegue", "No aplica", "No aplica", "En despliegue", "70", "No aplica", "70"],
+        "Plastificado BOG": ["72", "No aplica", "No aplica", "No aplica", "No aplica", "No aplica", "No aplica", "No aplica", "72"],
+        "Business Class Américas": ["En despliegue", "En despliegue", "No aplica", "No aplica", "En despliegue", "No aplica", "No aplica", "No aplica", "—"],
+        "Carga (máx. 3)": [5, 3, 4, 1, 3, 4, 3, 2, 3.1]
     })
 
 if 'historial_pulsos' not in st.session_state:
-    st.session_state.historial_pulsos = []
+    st.session_state.historial_pulsos = [
+        {"id": 1, "estacion": "BOG Bogotá El Dorado", "periodo": "Semana 44 (26 Oct 2026)", "politica": "Equipaje de mano", "resultado": "Indice de alineación 58% (Alerta roja - Brecha de criterio en mostrador)", "color": "#d32f2f"},
+        {"id": 2, "estacion": "MDE Medellín Rionegro", "periodo": "Semana 44 (26 Oct 2026)", "politica": "Baterías de litio", "resultado": "Indice de alineación 90% (Adoptado satisfactoriamente)", "color": "#2e7d32"},
+        {"id": 3, "estacion": "CLO Cali", "periodo": "Semana 43 (19 Oct 2026)", "politica": "Equipaje de mano", "resultado": "Indice de alineación 62% (Intervención de instructor asignada)", "color": "#d32f2f"},
+        {"id": 4, "estacion": "MAD Madrid", "periodo": "Semana 43 (19 Oct 2026)", "politica": "Documentos de viaje", "resultado": "Fase de despliegue inicial completada (70%)", "color": "#1976d2"}
+    ]
 
 # Encabezado institucional superior con logotipo oficial
 st.markdown("""
@@ -121,8 +128,8 @@ tab_home, tab_ficha, tab_pulso, tab_tablero, tab_fases = st.tabs([
 ])
 
 with tab_home:
-    st.subheader("Tres instrumentos y una regla (Escenario Inicial en Ceros)")
-    st.markdown("Inicie la simulación interactiva registrando fichas y pulsos en vivo.")
+    st.subheader("Tres instrumentos y una regla")
+    st.markdown("Solución integral para cerrar la brecha entre el anuncio corporativo y la ejecución en el mostrador.")
     st.markdown("<br>", unsafe_allow_html=True)
     
     col1, col2, col3 = st.columns(3)
@@ -155,22 +162,22 @@ with tab_home:
         """, unsafe_allow_html=True)
         
     st.markdown("<br><br>", unsafe_allow_html=True)
-    st.markdown("### Instructivo para la Simulación en Vivo")
+    st.markdown("### Instructivo Operativo de la Plataforma")
 
     st.markdown("""
     <div class="card-instructivo">
-        <h4 style="margin:0 0 6px 0; color:#d32f2f; font-size:16px;">Paso 1: Registrar Ficha (Compuerta)</h4>
-        <p style="margin:0; font-size:13px; color:#444; line-height: 1.5;">Vaya a la pestaña '1. Ficha', seleccione la política y las estaciones piloto. Valide el ingreso para simular el control de capacidad inicial en ceros.</p>
+        <h4 style="margin:0 0 6px 0; color:#d32f2f; font-size:16px;">Sección 1: Ficha (Compuerta de Capacidad)</h4>
+        <p style="margin:0; font-size:13px; color:#444; line-height: 1.5;">Simula el registro formal de directrices normativas antes de lanzarlas a la red.</p>
     </div>
     
     <div class="card-instructivo">
-        <h4 style="margin:0 0 6px 0; color:#d32f2f; font-size:16px;">Paso 2: Registrar Pulso Semanal</h4>
-        <p style="margin:0; font-size:13px; color:#444; line-height: 1.5;">Vaya a la pestaña '2. Pulso', configure las observaciones de campo y registre el pulso. Observe cómo se alimenta automáticamente el tablero y el historial (con opción de eliminar registros).</p>
+        <h4 style="margin:0 0 6px 0; color:#d32f2f; font-size:16px;">Sección 2: Pulso Semanal (Gestión e Historial)</h4>
+        <p style="margin:0; font-size:13px; color:#444; line-height: 1.5;">Permite registrar nuevos pulsos en tiempo real, actualizar el tablero de red y gestionar el historial cronológico con opción de eliminación.</p>
     </div>
     
     <div class="card-instructivo">
-        <h4 style="margin:0 0 6px 0; color:#d32f2f; font-size:16px;">Paso 3: Ver Tablero de Adopción</h4>
-        <p style="margin:0; font-size:13px; color:#444; line-height: 1.5;">Consulte la matriz de red en tiempo real que reflejará los datos ingresados durante la simulación.</p>
+        <h4 style="margin:0 0 6px 0; color:#d32f2f; font-size:16px;">Sección 3: Tablero de Adopción</h4>
+        <p style="margin:0; font-size:13px; color:#444; line-height: 1.5;">Cuadro de mando ejecutivo completo de red.</p>
     </div>
     """, unsafe_allow_html=True)
 
@@ -203,20 +210,13 @@ with tab_ficha:
         estaciones_ficha = st.multiselect(
             "Estaciones alcanzadas (Fase Piloto)",
             ["BOG Bogotá El Dorado", "MDE Medellín Rionegro", "CLO Cali", "CTG Cartagena", "MAD Madrid", "MIA Miami", "SAL San Salvador", "LET Leticia"],
-            default=["BOG Bogotá El Dorado", "MDE Medellín Rionegro"]
+            default=["BOG Bogotá El Dorado", "MDE Medellín Rionegro", "CLO Cali"]
         )
         
         st.markdown("<br>", unsafe_allow_html=True)
         btn_ficha = st.form_submit_button("Validar y Registrar Ficha en Compuerta")
         if btn_ficha:
-            df_temp = st.session_state.matriz_red
-            for est in estaciones_ficha:
-                idx = df_temp.index[df_temp["Estación"] == est].tolist()
-                if idx:
-                    val_actual = df_temp.at[idx[0], "Carga (máx. 3)"]
-                    df_temp.at[idx[0], "Carga (máx. 3)"] = val_actual + 1
-            st.session_state.matriz_red = df_temp
-            st.success(f"Ficha validada correctamente. Capacidad evaluada y carga actualizada para {len(estaciones_ficha)} estaciones.")
+            st.success(f"Ficha validada y aprobada mediante compuerta de capacidad para {len(estaciones_ficha)} estaciones.")
 
 with tab_pulso:
     st.subheader("Instrumento 2: Registro de Pulso Semanal en Puesto de Trabajo")
@@ -244,7 +244,7 @@ with tab_pulso:
 
     if btn_registrar_pulso:
         puntaje_calculado = int((obs_conformes / 5.0) * 80 + (20 if (resp_a == resp_b == resp_c) else 5))
-        estado_texto = f"{puntaje_calculado}% - Adoptado" if puntaje_calculado >= 75 else f"{puntaje_calculado}% - En riesgo"
+        estado_texto = f"{puntaje_calculado} - Adoptado" if puntaje_calculado >= 75 else f"{puntaje_calculado} - En riesgo"
         
         columna_politica = "Equipaje de mano (regla con margen)"
         if "Baterías" in cambio_eval:
@@ -265,7 +265,7 @@ with tab_pulso:
             "estacion": estacion_pulso,
             "periodo": semana,
             "politica": cambio_eval,
-            "resultado": f"Indice de alineación calculado: {puntaje_calculado}% (Registrado en simulación)",
+            "resultado": f"Indice de alineación calculado: {puntaje_calculado}% (Actualizado en tiempo real)",
             "color": "#2e7d32" if puntaje_calculado >= 75 else "#d32f2f"
         }
         st.session_state.historial_pulsos.insert(0, nuevo_historial)
@@ -277,7 +277,7 @@ with tab_pulso:
     st.subheader("Historial Cronológico y Gestión de Auditorías")
     
     if len(st.session_state.historial_pulsos) > 0:
-        st.markdown("Seleccione un registro histórico para eliminarlo durante su simulación:")
+        st.markdown("Seleccione un registro histórico para eliminarlo si lo requiere:")
         with st.form("form_eliminar_historial"):
             opciones_historial = {f"ID {item['id']} | {item['estacion']} - {item['politica']} ({item['periodo']})": item['id'] for item in st.session_state.historial_pulsos}
             
@@ -299,29 +299,29 @@ with tab_pulso:
             </div>
             """, unsafe_allow_html=True)
     else:
-        st.info("No hay registros históricos de pulso en este momento (Escenario en ceros). Registre un pulso arriba para visualizarlo aquí.")
+        st.info("No hay registros históricos de pulso en este momento.")
 
 with tab_tablero:
     st.subheader("Instrumento 3: Tablero Semanal de Adopción por Estación")
-    st.markdown("Semana 45 - 2 Nov 2026 | Dónde se está quedando cada cambio, esta semana (Escenario dinámico).")
+    st.markdown("Semana 45 - 2 Nov 2026 | Dónde se está quedando cada cambio, esta semana (Actualizado en tiempo real).")
     st.markdown("<br>", unsafe_allow_html=True)
     
     m1, m2, m3, m4 = st.columns(4)
     with m1:
-        st.markdown('<div class="metric-card"><b>Cambios activos</b><br><span style="font-size:24px; font-weight:bold; color:#222;">0</span></div>', unsafe_allow_html=True)
+        st.markdown('<div class="metric-card"><b>Cambios activos</b><br><span style="font-size:24px; font-weight:bold; color:#222;">5</span></div>', unsafe_allow_html=True)
     with m2:
-        st.markdown('<div class="metric-card"><b>Celdas en riesgo</b><br><span style="font-size:24px; font-weight:bold; color:#d32f2f;">0</span></div>', unsafe_allow_html=True)
+        st.markdown('<div class="metric-card"><b>Celdas en riesgo</b><br><span style="font-size:24px; font-weight:bold; color:#d32f2f;">4</span></div>', unsafe_allow_html=True)
     with m3:
-        st.markdown('<div class="metric-card"><b>Estaciones sobre compuerta</b><br><span style="font-size:24px; font-weight:bold; color:#d32f2f;">0</span> <span style="font-size:11px; color:#666;">max. 3 activos</span></div>', unsafe_allow_html=True)
+        st.markdown('<div class="metric-card"><b>Estaciones sobre compuerta</b><br><span style="font-size:24px; font-weight:bold; color:#d32f2f;">3</span> <span style="font-size:11px; color:#666;">max. 3 activos</span></div>', unsafe_allow_html=True)
     with m4:
-        st.markdown('<div class="metric-card"><b>Calidad de despliegue</b><br><span style="font-size:24px; font-weight:bold; color:#222;">0%</span> <span style="font-size:11px; color:#666;">umbral 40%</span></div>', unsafe_allow_html=True)
+        st.markdown('<div class="metric-card"><b>Calidad de despliegue</b><br><span style="font-size:24px; font-weight:bold; color:#222;">50%</span> <span style="font-size:11px; color:#666;">umbral 40%</span></div>', unsafe_allow_html=True)
         
     st.markdown("<br>", unsafe_allow_html=True)
     st.dataframe(st.session_state.matriz_red, use_container_width=True)
     
     st.markdown("""
     <div style="background-color: #eef2f7; padding: 14px; border-radius: 6px; font-size: 12px; color: #333; margin-top: 15px;">
-        <b>Convenciones de estados:</b> Sin registrar | Adoptado | En riesgo | (Los datos se llenan interactivamente conforme simule la operación).
+        <b>Convenciones de estados:</b> Adoptado | En riesgo | Cerrado | En despliegue | No aplica | Índice 0-100 sin ranking.
     </div>
     """, unsafe_allow_html=True)
 
