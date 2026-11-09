@@ -4,7 +4,6 @@ import pandas as pd
 # Configuración general de la página
 st.set_page_config(
     page_title="Torre de Cambio | CESA & Avianca",
-    page_icon="✈️",
     layout="wide",
     initial_sidebar_state="collapsed"
 )
@@ -34,6 +33,14 @@ st.markdown("""
         border-top: 4px solid #d32f2f;
         box-shadow: 0 1px 3px rgba(0,0,0,0.08);
         height: 100%;
+    }
+    .card-instructivo {
+        background: #ffffff;
+        padding: 20px;
+        border-radius: 6px;
+        border-left: 4px solid #d32f2f;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+        margin-bottom: 15px;
     }
     .metric-card {
         background-color: white;
@@ -69,7 +76,7 @@ st.markdown("""
 
 # Pestañas de navegación superiores basadas en la arquitectura de la presentación
 tab_home, tab_ficha, tab_pulso, tab_tablero, tab_fases = st.tabs([
-    "Modelo Operativo", 
+    "Modelo y Instructivo", 
     "1. Ficha (Compuerta)", 
     "2. Pulso Semanal", 
     "3. Tablero de Adopción",
@@ -110,7 +117,30 @@ with tab_home:
         """, unsafe_allow_html=True)
         
     st.markdown("<br>", unsafe_allow_html=True)
-    st.info("Utilice las pestañas superiores para navegar interactuando con cada uno de los instrumentos durante la sustentación.")
+    st.markdown("### Instructivo de Navegación y Uso de la Plataforma")
+    st.markdown("Este instructivo describe el propósito y la interacción recomendada para cada sección durante la presentación:")
+
+    st.markdown("""
+    <div class="card-instructivo">
+        <h4 style="margin:0 0 5px 0; color:#d32f2f;">Sección 1: Ficha (Compuerta)</h4>
+        <p style="margin:0; font-size:13px; color:#444;"><b>Uso:</b> Permite simular el registro formal de un cambio normativo antes de lanzarlo a la red. Seleccione la política, el tipo de regla y el criterio único. Al presionar validar, la compuerta de capacidad comprueba si las estaciones destinatarias soportan la carga sin saturarse.</p>
+    </div>
+    
+    <div class="card-instructivo">
+        <h4 style="margin:0 0 5px 0; color:#d32f2f;">Sección 2: Pulso Semanal</h4>
+        <p style="margin:0; font-size:13px; color:#444;"><b>Uso:</b> Simula la herramienta móvil del instructor en campo. Seleccione la estación a auditar, el periodo, la política evaluada, configure las observaciones en puesto y la prueba de consistencia con tres agentes para registrar el pulso semanal.</p>
+    </div>
+    
+    <div class="card-instructivo">
+        <h4 style="margin:0 0 5px 0; color:#d32f2f;">Sección 3: Tablero de Adopción</h4>
+        <p style="margin:0; font-size:13px; color:#444;"><b>Uso:</b> Muestra el cuadro de mando ejecutivo (idéntico a la matriz directiva de red). Presenta las métricas superiores globales de la semana y el estado detallado de adopción de cada política por cada aeropuerto de la red.</p>
+    </div>
+
+    <div class="card-instructivo">
+        <h4 style="margin:0 0 5px 0; color:#d32f2f;">Sección: Despliegue por Fases</h4>
+        <p style="margin:0; font-size:13px; color:#444;"><b>Uso:</b> Detalla la hoja de ruta de implementación (Fase 0 a Fase 3) y la composición porcentual del índice operativo para escalar el proyecto con seguridad.</p>
+    </div>
+    """, unsafe_allow_html=True)
 
 with tab_ficha:
     st.subheader("Instrumento 1: Ficha de Cambio (Compuerta de Capacidad)")
