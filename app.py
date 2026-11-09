@@ -1,246 +1,152 @@
 import streamlit as st
 import pandas as pd
 
-# Configuración de página con diseño ancho y limpio
+# Configuración general de la página
 st.set_page_config(page_title="Torre de Cambio - Avianca", page_icon="✈️", layout="wide")
 
-# Estilos CSS corporativos avanzados
+# Estilos visuales personalizados (Estética corporativa rojo Avianca)
 st.markdown("""
     <style>
-    .stApp::before {
-        content: "";
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 6px;
-        background: linear-gradient(90deg, #E30613 0%, #C8102E 50%, #98002E 100%);
-        z-index: 99999;
-    }
-    .card-instrumento {
-        background: linear-gradient(135deg, #E30613 0%, #A00034 100%);
-        padding: 25px;
-        border-radius: 12px;
+    .main { background-color: #f8f9fa; }
+    h1, h2, h3 { color: #d32f2f !important; font-family: 'Helvetica Neue', sans-serif; }
+    .stButton>button {
+        background-color: #d32f2f;
         color: white;
-        margin-bottom: 20px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        border-radius: 6px;
+        font-weight: bold;
+        border: none;
     }
-    .card-instrumento h3 {
-        color: white !important;
-        margin-bottom: 5px;
+    .stButton>button:hover {
+        background-color: #b71c1c;
+        color: white;
     }
     </style>
 """, unsafe_allow_html=True)
 
-# 1. Base de datos centralizada en la sesión (Conectada 100%)
-if 'cambios_db' not in st.session_state:
-    st.session_state.cambios_db = [
-        {
-            "id": "FC-014", 
-            "titulo": "Equipaje de mano en vuelos internacionales", 
-            "categoria": "Equipaje", 
-            "estaciones": ["BOG Bogotá", "MAD Madrid"], 
-            "estado": "En riesgo 🔴", 
-            "criterio": "Máx 10 kg en tarifa Light. Si excede los 11 kg, cobro obligatorio en counter sin excepciones verbales."
-        },
-        {
-            "id": "FC-015", 
-            "titulo": "Política de baterías de litio en cabina", 
-            "categoria": "Operaciones", 
-            "estaciones": ["MIA Miami", "MDE Medellín"], 
-            "estado": "Adoptado 🔵", 
-            "criterio": "Prohibido en bodega. Permitido máx. 2 unidades portátiles en cabina con revisión de potencia."
-        }
-    ]
-
-if 'estaciones_estado' not in st.session_state:
-    st.session_state.estaciones_estado = {
-        "BOG Bogotá El Dorado": {"capacidad": 3, "activos": 4, "alineacion": 78, "estado": "ALTO 🔴"},
-        "MDE Medellín Rionegro": {"capacidad": 4, "alineacion": 85, "estado": "ESTABLE 🟢"},
-        "CLO Cali": {"capacidad": 3, "alineacion": 62, "estado": "ALTO 🔴"},
-        "MAD Madrid": {"capacidad": 3, "alineacion": 60, "estado": "ALTO 🔴"}
-    }
-
-# Encabezado principal
-st.markdown("##### LA SOLUCIÓN CORPORATIVA")
-st.title("Torre de Cambio: tres instrumentos y una regla")
+# Encabezado principal inspirado en la diapositiva 7
+st.markdown("### LA SOLUCIÓN")
+st.title("✈️ Torre de Cambio: tres instrumentos y una regla")
 st.markdown("---")
 
-# Pestañas de navegación principal
-tab_home, tab_ficha, tab_pulso, tab_tablero, tab_guia = st.tabs([
-    "🏠 Resumen General", 
-    "1️⃣ Ficha (Entrada)", 
-    "2️⃣ Pulso (Medición)", 
-    "3️⃣ Tablero (Adopción)",
-    "📋 Qué hacer / Qué no (Guía de Counter)"
+# Pestañas de navegación superiores (Igual que en tus diapositivas)
+tab_home, tab_ficha, tab_pulso, tab_tablero = st.tabs([
+    "🏠 Inicio (Los 3 Instrumentos)", 
+    "1️⃣ Ficha (Compuerta)", 
+    "2️⃣ Pulso Semanal", 
+    "3️⃣ Tablero de Red"
 ])
 
-# -------------------------------------------------------------------------
-# PESTAÑA 0: RESUMEN GENERAL
-# -------------------------------------------------------------------------
 with tab_home:
-    st.markdown("### El ciclo operativo para asegurar que cada directriz llegue al mostrador")
-    
+    st.subheader("Estructura del Modelo Operativo")
     col1, col2, col3 = st.columns(3)
+    
     with col1:
         st.markdown("""
-            <div class="card-instrumento">
-                <h3>1 Ficha</h3>
-                <p>Obliga a resolver el margen</p>
-                <small>Criterio único antes de salir a la red.</small>
-            </div>
+        <div style="background: linear-gradient(135deg, #d32f2f 0%, #c2185b 100%); padding: 25px; border-radius: 10px; color: white; text-align: center;">
+            <h3>1 Ficha</h3>
+            <p>Obliga a resolver el margen por escrito antes de salir a la red.</p>
+        </div>
         """, unsafe_allow_html=True)
+        
     with col2:
         st.markdown("""
-            <div class="card-instrumento">
-                <h3>2 Pulso</h3>
-                <p>Mide en el puesto, semanal</p>
-                <small>Actualiza el estado de riesgo en tiempo real.</small>
-            </div>
+        <div style="background: linear-gradient(135deg, #d32f2f 0%, #c2185b 100%); padding: 25px; border-radius: 10px; color: white; text-align: center;">
+            <h3>2 Pulso</h3>
+            <p>Mide en el puesto de trabajo, de forma semanal y ágil.</p>
+        </div>
         """, unsafe_allow_html=True)
+        
     with col3:
         st.markdown("""
-            <div class="card-instrumento">
-                <h3>3 Tablero</h3>
-                <p>Adopción y carga visibles</p>
-                <small>Refleja al instante lo creado en Ficha y Pulso.</small>
-            </div>
+        <div style="background: linear-gradient(135deg, #d32f2f 0%, #c2185b 100%); padding: 25px; border-radius: 10px; color: white; text-align: center;">
+            <h3>3 Tablero</h3>
+            <p>Adopción y carga visibles en tiempo real por estación.</p>
+        </div>
         """, unsafe_allow_html=True)
+        
+    st.info("💡 **Navega por las pestañas superiores** para interactuar con cada instrumento del sistema en tiempo real durante tu presentación.")
 
-# -------------------------------------------------------------------------
-# PESTAÑA 1: INSTRUMENTO 1 - LA FICHA (Entrada)
-# -------------------------------------------------------------------------
 with tab_ficha:
-    st.markdown("##### INSTRUMENTO 1  |  LA FICHA")
-    st.subheader("Ninguna regla con margen sale sin resolverlo")
+    st.subheader("Instrumento 1: Ficha de Cambio (Compuerta de Capacidad)")
+    st.markdown("Ninguna regla con margen sale sin resolverlo por escrito[cite: 11].")
     
-    col_f1, col_f2 = st.columns([2, 1])
-    with col_f1:
-        st.markdown("#### Registrar Nueva Ficha de Cambio")
+    with st.form("form_ficha"):
+        col_f1, col_f2 = st.columns(2)
+        with col_f1:
+            # Opciones estructuradas en lugar de texto libre
+            politica = st.selectbox("¿Qué cambia y desde cuándo?", [
+                "Máx. 10 kg en cabina, tarifa Light internacional. Desde 27 ene 2026",
+                "Tolerancia de equipaje deportivo y maletas de mano - Tarifa Classic",
+                "Lineamiento de baterías de litio y dispositivos en bodega"
+            ])
+            razon = st.selectbox("Por qué cambia", [
+                "Nueva política de equipaje unificada en las Américas",
+                "Optimización de tiempos de embarque en puerta",
+                "Estandarización regulatoria internacional"
+            ])
+        with col_f2:
+            tipo_regla = st.radio("Tipo de regla", ["Regla dura", "Regla con margen"])
+            criterio = st.selectbox("Criterio único obligatorio", [
+                "11 kg en tarifa que incluye cabina",
+                "La maleta no entra en el medidor por poco",
+                "Pasabordo y sistema no coinciden (Decisión por escrito)"
+            ])
+            
+        estaciones_ficha = st.multiselect(
+            "Estaciones alcancé (Piloto)",
+            ["BOG Bogotá", "MDE Medellín", "CLO Cali", "CTG Cartagena", "MAD Madrid", "MIA Miami"],
+            default=["BOG Bogotá", "MDE Medellín"]
+        )
         
-        with st.form("form_ficha_dinamica"):
-            titulo_f = st.text_input("Título del cambio normativo", "Ej: Flexibilidad en mascotas y soporte emocional")
-            categoria_f = st.selectbox("Categoría", ["Equipaje", "Tarifas", "Operaciones", "Servicios"])
-            estacion_f = st.multiselect("Estaciones destinatarias", list(st.session_state.estaciones_estado.keys()), default=["BOG Bogotá El Dorado"])
-            criterio_f = st.text_area("Criterio único (Aquí defines el núcleo de la regla)", "Ej: Se permite única y exclusivamente un contenedor flexible bajo la silla. Si excede medidas, se prohíbe el embarque sin excepciones.")
-            
-            submitted = st.form_submit_button("Validar y Lanzar Cambio a la Red", type="primary")
-            
-            if submitted:
-                if titulo_f and criterio_f:
-                    nuevo_id = f"FC-0{len(st.session_state.cambios_db) + 1}"
-                    nuevo_cambio = {
-                        "id": nuevo_id,
-                        "titulo": titulo_f,
-                        "categoria": categoria_f,
-                        "estaciones": estacion_f,
-                        "estado": "En despliegue 🟡",
-                        "criterio": criterio_f
-                    }
-                    st.session_state.cambios_db.append(nuevo_cambio)
-                    st.success(f"✅ ¡Ficha {nuevo_id} creada! Ve de inmediato a la pestaña 'Qué hacer / Qué no' y al 'Tablero' para ver cómo el sistema adaptó todo automáticamente.")
-                else:
-                    st.warning("Por favor completa el título y el criterio único.")
-    
-    with col_f2:
-        st.markdown("""
-            <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; border-left: 4px solid #E30613;">
-                <h4>Conectividad en Vivo</h4>
-                <p style="font-size: 14px; color: #555;">
-                Todo lo que escribas aquí alimenta dinámicamente el Manual de Mostrador y el Tablero central de red.
-                </p>
-            </div>
-        """, unsafe_allow_html=True)
+        btn_ficha = st.form_submit_button("Validar y Registrar Ficha en Compuerta")
+        if btn_ficha:
+            st.success(f"✅ Ficha aprobada y validada para {len(estaciones_ficha)} estaciones. Compuerta superada sin saturar la red.")
 
-# -------------------------------------------------------------------------
-# PESTAÑA 2: INSTRUMENTO 2 - EL PULSO (Medición)
-# -------------------------------------------------------------------------
 with tab_pulso:
-    st.markdown("##### INSTRUMENTO 2  |  EL PULSO")
-    st.subheader("Diez minutos por semana, en el puesto de trabajo")
+    st.subheader("Instrumento 2: Registro de Pulso en Puesto de Trabajo")
+    st.markdown("Menos de 2 minutos por levantamiento en el celular del instructor (10 min por semana/estación)[cite: 12].")
     
-    col_p1, col_p2 = st.columns([1, 1])
+    col_p1, col_p2 = st.columns(2)
     with col_p1:
-        st.markdown("#### Simulador de Pulso (Celular Instructor)")
-        estacion_sel = st.selectbox("Estación evaluada", list(st.session_state.estaciones_estado.keys()))
-        alineacion_nueva = st.slider("Puntaje de alineación observado en counter (%)", 0, 100, 75)
+        estacion_pulso = st.selectbox("Estación a auditar", ["BOG Bogotá El Dorado", "MDE Medellín Rionegro", "CLO Cali", "MAD Madrid"])
+        semana = st.selectbox("Semana de evaluación", ["Semana 45 - 2 nov 2026", "Semana 46", "Semana 47"])
+        cambio_eval = st.selectbox("Política evaluada", ["Equipaje de mano (regla con margen)", "Baterías de litio", "Documentos de viaje"])
         
-        if st.button("Registrar Pulso Semanal"):
-            st.session_state.estaciones_estado[estacion_sel]["alineacion"] = alineacion_nueva
-            if alineacion_nueva >= 75:
-                st.session_state.estaciones_estado[estacion_sel]["estado"] = "ESTABLE 🟢"
-            else:
-                st.session_state.estaciones_estado[estacion_sel]["estado"] = "ALTO 🔴"
-            st.success(f"📱 Pulso registrado para {estacion_sel}. El semáforo en el Tablero se ha actualizado al instante.")
-            
     with col_p2:
-        st.markdown("""
-            <div style="text-align: center; padding: 30px; background: #fff; border: 1px solid #ddd; border-radius: 12px;">
-                <h1 style="color: #E30613; font-size: 64px; margin: 0;">2 min</h1>
-                <p style="font-weight: bold; font-size: 18px;">por levantamiento en el celular del instructor</p>
-                <hr style="margin: 15px 0;">
-                <p style="margin: 5px 0;">⏱️ <b>10 min</b> por semana, por estación</p>
-            </div>
-        """, unsafe_allow_html=True)
+        st.markdown("### Verificación en Puesto (5 observaciones)")
+        obs_conformes = st.slider("Observaciones conformes en counter (de 5)", 0, 5, 4)
+        
+        st.markdown("### Prueba de Consistencia (3 Agentes)")
+        resp_a = st.selectbox("Agente Turno A", ["Acepta / Coincide", "No coincide"])
+        resp_b = st.selectbox("Agente Turno B", ["Acepta / Coincide", "No coincide"])
+        resp_c = st.selectbox("Agente Turno C", ["Acepta / Coincide", "No coincide"])
 
-# -------------------------------------------------------------------------
-# PESTAÑA 3: INSTRUMENTO 3 - EL TABLERO (Adopción)
-# -------------------------------------------------------------------------
+    if st.button("Registrar Pulso Semanal"):
+        st.success(f"📊 Pulso registrado para {estacion_pulso}. Los datos se han sincronizado con el Tablero de Red.")
+
 with tab_tablero:
-    st.markdown("##### INSTRUMENTO 3  |  EL TABLERO")
-    st.subheader("Estado sincronizado de la red y fichas activas")
+    st.subheader("Instrumento 3: Tablero Semanal de Adopción por Estación")
+    st.markdown("Dónde se está quedando cada cambio, esta semana (Datos simulados).")
     
-    st.markdown("#### 📋 Fichas Activas en el Sistema")
-    df_cambios = pd.DataFrame(st.session_state.cambios_db)[["id", "titulo", "categoria", "estado", "criterio"]]
-    st.dataframe(df_cambios, use_container_width=True)
+    # Métricas superiores inspiradas en la diapositiva 10
+    m1, m2, m3, m4 = st.columns(4)
+    m1.metric("Cambios activos", "5", "Estándar red")
+    m2.metric("Celdas en riesgo", "4", "🔴 Alerta", delta_color="inverse")
+    m3.metric("Estaciones en compuerta", "3", "Máx. 3 activos")
+    m4.metric("Calidad de despliegue", "50%", "Umbral 40%")
     
-    st.markdown("#### 📊 Estado Actual de Estaciones (Sincronizado con Pulso)")
-    df_estaciones = pd.DataFrame.from_dict(st.session_state.estaciones_estado, orient='index')
-    st.dataframe(df_estaciones, use_container_width=True)
-
-# -------------------------------------------------------------------------
-# PESTAÑA 4: QUÉ HACER / QUÉ NO (Generado 100% Automático desde la Ficha)
-# -------------------------------------------------------------------------
-with tab_guia:
-    st.markdown("##### ESPACIO DE REGISTRO Y CONSULTA RÁPIDA")
-    st.subheader("Manual de Ejecución en Mostrador: Generado Automáticamente desde la Ficha")
-    st.markdown("Selecciona cualquier directriz creada. El sistema leerá el Criterio Único y extraerá de forma inteligente las acciones obligatorias y prohibidas para el agente.")
-    
-    opciones_selector = {f"[{c['id']}] {c['titulo']}": c for c in st.session_state.cambios_db}
-    cambio_elegido_key = st.selectbox("Seleccione la directriz a consultar", list(opciones_selector.keys()))
-    
-    cambio_activo = opciones_selector[cambio_elegido_key]
-    
-    st.markdown(f"### 📌 Detalle operativo para: **{cambio_activo['titulo']}**")
-    st.info(f"🏷️ **Categoría:** {cambio_activo['categoria']} | 📊 **Estado en red:** {cambio_activo['estado']}")
-    
-    # EXTRACCIÓN DINÁMICA INTELIGENTE BASADA EN EL TEXTO DE LA FICHA
-    criterio_texto = cambio_activo['criterio']
-    
-    col_g1, col_g2 = st.columns(2)
-    with col_g1:
-        st.markdown(f"""
-            <div style="background-color: #e8f5e9; padding: 20px; border-radius: 8px; border-left: 5px solid #4CAF50; min-height: 180px;">
-                <h4 style="color: #2e7d32; margin-top:0;">✅ LO QUE SÍ TOCA HACER</h4>
-                <ul style="padding-left: 20px; color: #1b5e20; font-size: 15px;">
-                    <li>Aplicar de forma estricta la directriz oficial registrada.</li>
-                    <li>Validar el cumplimiento exacto de: <em>"{criterio_texto[:80]}..."</em></li>
-                    <li>Escalar inmediatamente al supervisor de turno si hay discrepancias del sistema.</li>
-                </ul>
-            </div>
-        """, unsafe_allow_html=True)
-        
-    with col_g2:
-        st.markdown(f"""
-            <div style="background-color: #ffebee; padding: 20px; border-radius: 8px; border-left: 5px solid #E30613; min-height: 180px;">
-                <h4 style="color: #c62828; margin-top:0;">❌ LO QUE NO SE DEBE HACER</h4>
-                <ul style="padding-left: 20px; color: #b71c1c; font-size: 15px;">
-                    <li>No improvisar interpretaciones subjetivas ni tolerancias fuera de la norma.</li>
-                    <li>No contradecir el criterio único aprobado en la Ficha.</li>
-                    <li>No aceptar excepciones verbales que no estén respaldadas por escrito.</li>
-                </ul>
-            </div>
-        """, unsafe_allow_html=True)
-        
     st.markdown("---")
-    st.markdown(f"**📝 Criterio Único Oficial (Fuente de Verdad):** *{criterio_texto}*")
+    
+    # Matriz interactiva de red basada en tu diapositiva 10
+    data_matriz = {
+        "Estación": ["BOG Bogotá", "MDE Medellín", "CLO Cali", "CTG Cartagena", "MAD Madrid"],
+        "Equipaje (Regla con margen)": ["48 🔴 En riesgo", "69 🔵 Adoptado", "52 🔴 En riesgo", "82 🔵 Adoptado", "45 🔴 En riesgo"],
+        "Baterías de litio": ["86 🔵 Adoptado", "90 🔵 Adoptado", "84 🔵 Adoptado", "Cerrado ⬛", "80 🔵 Adoptado"],
+        "Documentos de viaje": ["En despliegue", "—", "En despliegue", "—", "En despliegue"],
+        "Carga Activa": [5, 3, 4, 1, 4]
+    }
+    
+    df_matriz = pd.DataFrame(data_matriz)
+    st.dataframe(df_matriz, use_container_width=True)
+    
+    st.info("Leyenda: 🔵 Adoptado | 🔴 En riesgo | ⬛ Cerrado | — No aplica")
