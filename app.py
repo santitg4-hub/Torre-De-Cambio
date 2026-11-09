@@ -84,7 +84,7 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# INICIALIZACIÓN DE ESTADOS EN TIEMPO REAL (SESSION STATE)
+# INICIALIZACIÓN DE ESTADOS CON DATOS REALES Y PROTEGIDOS
 if 'matriz_red' not in st.session_state:
     st.session_state.matriz_red = pd.DataFrame({
         "Estación": ["BOG Bogotá El Dorado", "MDE Medellín Rionegro", "CLO Cali", "CTG Cartagena", "MIA Miami", "MAD Madrid", "SAL San Salvador", "LET Leticia", "Promedio de red"],
@@ -163,22 +163,21 @@ with tab_home:
         
     st.markdown("<br><br>", unsafe_allow_html=True)
     st.markdown("### Instructivo Operativo de la Plataforma")
-    st.markdown("Guía rápida para la sustentación y demostración en vivo ante el comité:")
 
     st.markdown("""
     <div class="card-instructivo">
         <h4 style="margin:0 0 6px 0; color:#d32f2f; font-size:16px;">Sección 1: Ficha (Compuerta de Capacidad)</h4>
-        <p style="margin:0; font-size:13px; color:#444; line-height: 1.5;"><b>Objetivo:</b> Simular el registro formal de directrices normativas.</p>
+        <p style="margin:0; font-size:13px; color:#444; line-height: 1.5;">Simula el registro formal de directrices normativas antes de lanzarlas a la red.</p>
     </div>
     
     <div class="card-instructivo">
-        <h4 style="margin:0 0 6px 0; color:#d32f2f; font-size:16px;">Sección 2: Pulso Semanal (Gestión e Historial con Eliminación)</h4>
-        <p style="margin:0; font-size:13px; color:#444; line-height: 1.5;"><b>Objetivo:</b> Permite registrar nuevos pulsos en tiempo real y <b>gestionar/eliminar registros históricos</b> de la base de datos de auditorías para total control durante la demo.</p>
+        <h4 style="margin:0 0 6px 0; color:#d32f2f; font-size:16px;">Sección 2: Pulso Semanal (Gestión e Historial)</h4>
+        <p style="margin:0; font-size:13px; color:#444; line-height: 1.5;">Permite registrar nuevos pulsos en tiempo real, actualizar el tablero de red y gestionar el historial cronológico con opción de eliminación.</p>
     </div>
     
     <div class="card-instructivo">
         <h4 style="margin:0 0 6px 0; color:#d32f2f; font-size:16px;">Sección 3: Tablero de Adopción</h4>
-        <p style="margin:0; font-size:13px; color:#444; line-height: 1.5;"><b>Objetivo:</b> Refleja de forma centralizada el estado operativo actual de la red.</p>
+        <p style="margin:0; font-size:13px; color:#444; line-height: 1.5;">Cuadro de mando ejecutivo completo de red.</p>
     </div>
     """, unsafe_allow_html=True)
 
@@ -273,22 +272,29 @@ with tab_pulso:
         
         st.success(f"Pulso registrado para {estacion_pulso}. Tablero y matriz actualizados en tiempo real.")
 
-    # SECCIÓN HISTÓRICA CON GESTIÓN Y BOTÓN DE ELIMINAR
+    # SECCIÓN HISTÓRICA CON GESTIÓN Y PROTECCIÓN CONTRA KEYERROR
     st.markdown("<br><hr>", unsafe_allow_html=True)
     st.subheader("Historial Cronológico y Gestión de Auditorías")
-    st.markdown("Seleccione un registro histórico para eliminarlo y mantener limpia la trazabilidad:")
     
     if len(st.session_state.historial_pulsos) > 0:
-        # Formulario para eliminar registros de forma interactiva
+        st.markdown("Seleccione un registro histórico para eliminarlo si lo requiere:")
         with st.form("form_eliminar_historial"):
-            opciones_historial = {f"ID {item['id']} | {item['estacion']} - {item['politica']} ({item['periodo'])"} : item['id'] for item in st.session_state.historial_pulsos}
+            # Generación segura de opciones evitando KeyError
+            opciones_historial = {}
+            for item in st.session_state.historial_pulsos:
+                r_id = item.get('id', 0)
+                r_est = item.get('estacion', 'Desconocida')
+                r_pol = item.get('politica', 'Política')
+                r_per = item.get('periodo', 'Periodo')
+                texto_opcion = f"ID {r_id} | {r_est} - {r_pol} ({r_per})"
+                opciones_historial[texto_opcion] = r_id
             
             registro_a_borrar = st.selectbox("Seleccione el registro de auditoría a eliminar", options=list(opciones_historial.keys()))
             btn_eliminar = st.form_submit_button("Eliminar Registro Seleccionado")
             
             if btn_eliminar and registro_a_borrar:
                 id_a_quitar = opciones_historial[registro_a_borrar]
-                st.session_state.historial_pulsos = [item for item in st.session_state.historial_pulsos if item['id'] != id_a_quitar]
+                st.session_state.historial_pulsos = [item for item in st.session_state.historial_pulsos if item.get('id') != id_a_quitar]
                 st.success(f"Registro eliminado correctamente de la base de datos histórica.")
                 st.rerun()
 
@@ -296,12 +302,12 @@ with tab_pulso:
         for item in st.session_state.historial_pulsos:
             st.markdown(f"""
             <div class="card-historial">
-                <b>ID Registro: {item['id']} | Estación: {item['estacion']}</b> | <b>Periodo:</b> {item['periodo']} | <b>Política:</b> {item['politica']}<br>
-                <span style="color: {item['color']}; font-weight: 600;">Resultado: {item['resultado']}</span>
+                <b>ID Registro: {item.get('id')} | Estación: {item.get('estacion')}</b> | <b>Periodo:</b> {item.get('periodo')} | <b>Política:</b> {item.get('politica')}<br>
+                <span style="color: {item.get('color', '#333')}; font-weight: 600;">Resultado: {item.get('resultado')}</span>
             </div>
             """, unsafe_allow_html=True)
     else:
-        st.info("No hay registros históricos en este momento.")
+        st.info("No hay registros históricos de pulso en este momento.")
 
 with tab_tablero:
     st.subheader("Instrumento 3: Tablero Semanal de Adopción por Estación")
@@ -323,7 +329,7 @@ with tab_tablero:
     
     st.markdown("""
     <div style="background-color: #eef2f7; padding: 14px; border-radius: 6px; font-size: 12px; color: #333; margin-top: 15px;">
-        <b>Convenciones de estados:</b> Adoptado | En riesgo | Cerrado | En despliegue | No aplica | Índice 0-100 sin ranking. (Los valores se actualizan en vivo al registrar o eliminar pulsos).
+        <b>Convenciones de estados:</b> Adoptado | En riesgo | Cerrado | En despliegue | No aplica | Índice 0-100 sin ranking.
     </div>
     """, unsafe_allow_html=True)
 
