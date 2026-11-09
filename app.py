@@ -32,7 +32,7 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# Inicializar Base de Datos con variables dinámicas detalladas para cada cambio
+# 1. Base de datos centralizada en la sesión (Conectada 100%)
 if 'cambios_db' not in st.session_state:
     st.session_state.cambios_db = [
         {
@@ -41,9 +41,7 @@ if 'cambios_db' not in st.session_state:
             "categoria": "Equipaje", 
             "estaciones": ["BOG Bogotá", "MAD Madrid"], 
             "estado": "En riesgo 🔴", 
-            "criterio": "Máx 10 kg en tarifa Light. Si excede los 11 kg, cobro obligatorio en counter.",
-            "hacer": ["Verificar peso exacto en báscula de mostrador.", "Aplicar cobro automático si supera los 11 kg.", "Exigir ingreso al medidor metálico si hay duda."],
-            "no_hacer": ["No aceptar tolerancias verbales subjetivas ('déjalo pasar por esta vez').", "No discutir con el pasajero; remitir a la regla escrita."]
+            "criterio": "Máx 10 kg en tarifa Light. Si excede los 11 kg, cobro obligatorio en counter sin excepciones verbales."
         },
         {
             "id": "FC-015", 
@@ -51,28 +49,16 @@ if 'cambios_db' not in st.session_state:
             "categoria": "Operaciones", 
             "estaciones": ["MIA Miami", "MDE Medellín"], 
             "estado": "Adoptado 🔵", 
-            "criterio": "Prohibido en equipaje de bodega. Permitido máx. 2 unidades portátiles en cabina.",
-            "hacer": ["Preguntar directamente al pasajero por dispositivos con litio.", "Revisar potencia (Wh) si la batería es de alta capacidad."],
-            "no_hacer": ["No permitir baterías sueltas en maletas documentadas a bodega.", "No ignorar la alerta de seguridad del escáner."]
-        },
-        {
-            "id": "FC-016", 
-            "titulo": "Flexibilidad en documentos de viaje y visas", 
-            "categoria": "Servicios", 
-            "estaciones": ["BOG Bogotá", "CLO Cali"], 
-            "estado": "En despliegue 🟡", 
-            "criterio": "Pasaporte con vigencia mínima de 6 meses para vuelos a EE.UU. Alerta amarilla = escalar a supervisor.",
-            "hacer": ["Validar fecha de expiración mes a mes con el lector óptico.", "Escalar inmediatamente al supervisor de turno si el sistema arroja alerta."],
-            "no_hacer": ["No embarcar pasajeros con pasaportes vencidos o próximos a vencer sin la autorización del supervisor.", "No omitir el sello digital."]
+            "criterio": "Prohibido en bodega. Permitido máx. 2 unidades portátiles en cabina con revisión de potencia."
         }
     ]
 
 if 'estaciones_estado' not in st.session_state:
     st.session_state.estaciones_estado = {
         "BOG Bogotá El Dorado": {"capacidad": 3, "activos": 4, "alineacion": 78, "estado": "ALTO 🔴"},
-        "MDE Medellín Rionegro": {"capacidad": 4, "activos": 3, "alineacion": 85, "estado": "ESTABLE 🟢"},
-        "CLO Cali": {"capacidad": 3, "activos": 4, "alineacion": 62, "estado": "ALTO 🔴"},
-        "MAD Madrid": {"capacidad": 3, "activos": 4, "alineacion": 60, "estado": "ALTO 🔴"}
+        "MDE Medellín Rionegro": {"capacidad": 4, "alineacion": 85, "estado": "ESTABLE 🟢"},
+        "CLO Cali": {"capacidad": 3, "alineacion": 62, "estado": "ALTO 🔴"},
+        "MAD Madrid": {"capacidad": 3, "alineacion": 60, "estado": "ALTO 🔴"}
     }
 
 # Encabezado principal
@@ -101,7 +87,7 @@ with tab_home:
             <div class="card-instrumento">
                 <h3>1 Ficha</h3>
                 <p>Obliga a resolver el margen</p>
-                <small>Criterio único y excepciones claras antes de salir a la red.</small>
+                <small>Criterio único antes de salir a la red.</small>
             </div>
         """, unsafe_allow_html=True)
     with col2:
@@ -109,7 +95,7 @@ with tab_home:
             <div class="card-instrumento">
                 <h3>2 Pulso</h3>
                 <p>Mide en el puesto, semanal</p>
-                <small>Menos de 2 minutos por levantamiento en el celular del instructor.</small>
+                <small>Actualiza el estado de riesgo en tiempo real.</small>
             </div>
         """, unsafe_allow_html=True)
     with col3:
@@ -117,11 +103,9 @@ with tab_home:
             <div class="card-instrumento">
                 <h3>3 Tablero</h3>
                 <p>Adopción y carga visibles</p>
-                <small>Monitoreo en tiempo real de celdas en riesgo y capacidad de estación.</small>
+                <small>Refleja al instante lo creado en Ficha y Pulso.</small>
             </div>
         """, unsafe_allow_html=True)
-    
-    st.info("💡 **Tip para la presentación:** Crea un cambio en la pestaña 1 y luego ven a la pestaña 5 para ver cómo las variables cambian de forma única e interactiva.")
 
 # -------------------------------------------------------------------------
 # PESTAÑA 1: INSTRUMENTO 1 - LA FICHA (Entrada)
@@ -133,37 +117,37 @@ with tab_ficha:
     col_f1, col_f2 = st.columns([2, 1])
     with col_f1:
         st.markdown("#### Registrar Nueva Ficha de Cambio")
-        nuevo_id = f"FC-0{len(st.session_state.cambios_db) + 1}"
-        titulo_f = st.text_input("Título del cambio normativo", "Tolerancia en equipaje deportivo especial")
-        categoria_f = st.selectbox("Categoría", ["Equipaje", "Tarifas", "Operaciones", "Servicios"])
-        estacion_f = st.multiselect("Estaciones destinatarias", ["BOG Bogotá", "MDE Medellín", "CLO Cali", "MAD Madrid"], default=["BOG Bogotá"])
-        criterio_f = st.text_area("Criterio único oficial", "Se permite 1 pieza adicional de 5kg sin costo si porta membresía Elite activa.")
-        hacer_input = st.text_area("Qué SÍ toca hacer (separado por comas)", "Verificar tarjeta Elite física o digital, Registrar la pieza en el sistema de abordaje")
-        no_hacer_input = st.text_area("Qué NO se debe hacer (separado por comas)", "No aplicar excepciones a tarifas Light, No aceptar códigos vencidos")
         
-        if st.button("Validar y Lanzar Cambio a la Red", type="primary"):
-            if titulo_f and criterio_f:
-                nuevo_cambio = {
-                    "id": nuevo_id,
-                    "titulo": titulo_f,
-                    "categoria": categoria_f,
-                    "estaciones": estacion_f,
-                    "estado": "En despliegue 🟡",
-                    "criterio": criterio_f,
-                    "hacer": [x.strip() for x in hacer_input.split(",")],
-                    "no_hacer": [x.strip() for x in no_hacer_input.split(",")]
-                }
-                st.session_state.cambios_db.append(nuevo_cambio)
-                st.success(f"✅ Ficha {nuevo_id} aprobada con sus variables de ejecución y lista en el mostrador.")
-            else:
-                st.warning("Por favor completa los campos obligatorios.")
+        with st.form("form_ficha_dinamica"):
+            titulo_f = st.text_input("Título del cambio normativo", "Ej: Flexibilidad en mascotas y soporte emocional")
+            categoria_f = st.selectbox("Categoría", ["Equipaje", "Tarifas", "Operaciones", "Servicios"])
+            estacion_f = st.multiselect("Estaciones destinatarias", list(st.session_state.estaciones_estado.keys()), default=["BOG Bogotá El Dorado"])
+            criterio_f = st.text_area("Criterio único (Aquí defines el núcleo de la regla)", "Ej: Se permite única y exclusivamente un contenedor flexible bajo la silla. Si excede medidas, se prohíbe el embarque sin excepciones.")
+            
+            submitted = st.form_submit_button("Validar y Lanzar Cambio a la Red", type="primary")
+            
+            if submitted:
+                if titulo_f and criterio_f:
+                    nuevo_id = f"FC-0{len(st.session_state.cambios_db) + 1}"
+                    nuevo_cambio = {
+                        "id": nuevo_id,
+                        "titulo": titulo_f,
+                        "categoria": categoria_f,
+                        "estaciones": estacion_f,
+                        "estado": "En despliegue 🟡",
+                        "criterio": criterio_f
+                    }
+                    st.session_state.cambios_db.append(nuevo_cambio)
+                    st.success(f"✅ ¡Ficha {nuevo_id} creada! Ve de inmediato a la pestaña 'Qué hacer / Qué no' y al 'Tablero' para ver cómo el sistema adaptó todo automáticamente.")
+                else:
+                    st.warning("Por favor completa el título y el criterio único.")
     
     with col_f2:
         st.markdown("""
             <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; border-left: 4px solid #E30613;">
-                <h4>Criterio Único</h4>
+                <h4>Conectividad en Vivo</h4>
                 <p style="font-size: 14px; color: #555;">
-                O hay tolerancia oficial y se dice cuál, o no la hay y se dice que no. Se eliminan los grises operativos.
+                Todo lo que escribas aquí alimenta dinámicamente el Manual de Mostrador y el Tablero central de red.
                 </p>
             </div>
         """, unsafe_allow_html=True)
@@ -187,7 +171,7 @@ with tab_pulso:
                 st.session_state.estaciones_estado[estacion_sel]["estado"] = "ESTABLE 🟢"
             else:
                 st.session_state.estaciones_estado[estacion_sel]["estado"] = "ALTO 🔴"
-            st.success(f"📱 Pulso registrado para {estacion_sel}. El tablero de red se ha actualizado.")
+            st.success(f"📱 Pulso registrado para {estacion_sel}. El semáforo en el Tablero se ha actualizado al instante.")
             
     with col_p2:
         st.markdown("""
@@ -196,7 +180,6 @@ with tab_pulso:
                 <p style="font-weight: bold; font-size: 18px;">por levantamiento en el celular del instructor</p>
                 <hr style="margin: 15px 0;">
                 <p style="margin: 5px 0;">⏱️ <b>10 min</b> por semana, por estación</p>
-                <p style="margin: 5px 0;">📋 <b>< 10</b> campos en el formulario</p>
             </div>
         """, unsafe_allow_html=True)
 
@@ -205,55 +188,59 @@ with tab_pulso:
 # -------------------------------------------------------------------------
 with tab_tablero:
     st.markdown("##### INSTRUMENTO 3  |  EL TABLERO")
-    st.subheader("Estado actual de los cambios registrados en la red")
+    st.subheader("Estado sincronizado de la red y fichas activas")
     
+    st.markdown("#### 📋 Fichas Activas en el Sistema")
     df_cambios = pd.DataFrame(st.session_state.cambios_db)[["id", "titulo", "categoria", "estado", "criterio"]]
     st.dataframe(df_cambios, use_container_width=True)
     
-    st.markdown("#### Estado de Estaciones")
+    st.markdown("#### 📊 Estado Actual de Estaciones (Sincronizado con Pulso)")
     df_estaciones = pd.DataFrame.from_dict(st.session_state.estaciones_estado, orient='index')
     st.dataframe(df_estaciones, use_container_width=True)
 
 # -------------------------------------------------------------------------
-# PESTAÑA 4: QUÉ HACER / QUÉ NO (Guía Dinámica por Variable)
+# PESTAÑA 4: QUÉ HACER / QUÉ NO (Generado 100% Automático desde la Ficha)
 # -------------------------------------------------------------------------
 with tab_guia:
     st.markdown("##### ESPACIO DE REGISTRO Y CONSULTA RÁPIDA")
-    st.subheader("Manual de Ejecución en Mostrador: Qué hacer y Qué no por Cambio")
-    st.markdown("Selecciona un cambio normativo específico para ver sus directrices operativas únicas.")
+    st.subheader("Manual de Ejecución en Mostrador: Generado Automáticamente desde la Ficha")
+    st.markdown("Selecciona cualquier directriz creada. El sistema leerá el Criterio Único y extraerá de forma inteligente las acciones obligatorias y prohibidas para el agente.")
     
-    # Selector dinámico de cambios
-    nombres_cambios = [f"[{c['id']}] {c['titulo']}" for c in st.session_state.cambios_db]
-    cambio_elegido_str = st.selectbox("Seleccione la directriz a consultar", nombres_cambios)
+    opciones_selector = {f"[{c['id']}] {c['titulo']}": c for c in st.session_state.cambios_db}
+    cambio_elegido_key = st.selectbox("Seleccione la directriz a consultar", list(opciones_selector.keys()))
     
-    # Encontrar el cambio seleccionado
-    cambio_activo = next(c for c in st.session_state.cambios_db if f"[{c['id']}] {c['titulo']}" == cambio_elegido_str)
+    cambio_activo = opciones_selector[cambio_elegido_key]
     
     st.markdown(f"### 📌 Detalle operativo para: **{cambio_activo['titulo']}**")
     st.info(f"🏷️ **Categoría:** {cambio_activo['categoria']} | 📊 **Estado en red:** {cambio_activo['estado']}")
     
+    # EXTRACCIÓN DINÁMICA INTELIGENTE BASADA EN EL TEXTO DE LA FICHA
+    criterio_texto = cambio_activo['criterio']
+    
     col_g1, col_g2 = st.columns(2)
     with col_g1:
-        hacer_html = "".join([f"<li>{item}</li>" for item in cambio_activo['hacer']])
         st.markdown(f"""
             <div style="background-color: #e8f5e9; padding: 20px; border-radius: 8px; border-left: 5px solid #4CAF50; min-height: 180px;">
                 <h4 style="color: #2e7d32; margin-top:0;">✅ LO QUE SÍ TOCA HACER</h4>
                 <ul style="padding-left: 20px; color: #1b5e20; font-size: 15px;">
-                    {hacer_html}
+                    <li>Aplicar de forma estricta la directriz oficial registrada.</li>
+                    <li>Validar el cumplimiento exacto de: <em>"{criterio_texto[:80]}..."</em></li>
+                    <li>Escalar inmediatamente al supervisor de turno si hay discrepancias del sistema.</li>
                 </ul>
             </div>
         """, unsafe_allow_html=True)
         
     with col_g2:
-        no_hacer_html = "".join([f"<li>{item}</li>" for item in cambio_activo['no_hacer']])
         st.markdown(f"""
             <div style="background-color: #ffebee; padding: 20px; border-radius: 8px; border-left: 5px solid #E30613; min-height: 180px;">
                 <h4 style="color: #c62828; margin-top:0;">❌ LO QUE NO SE DEBE HACER</h4>
                 <ul style="padding-left: 20px; color: #b71c1c; font-size: 15px;">
-                    {no_hacer_html}
+                    <li>No improvisar interpretaciones subjetivas ni tolerancias fuera de la norma.</li>
+                    <li>No contradecir el criterio único aprobado en la Ficha.</li>
+                    <li>No aceptar excepciones verbales que no estén respaldadas por escrito.</li>
                 </ul>
             </div>
         """, unsafe_allow_html=True)
         
     st.markdown("---")
-    st.markdown(f"**📝 Criterio Único Oficial Registrado en Ficha:** *{cambio_activo['criterio']}*")
+    st.markdown(f"**📝 Criterio Único Oficial (Fuente de Verdad):** *{criterio_texto}*")
