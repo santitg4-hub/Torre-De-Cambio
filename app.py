@@ -73,6 +73,25 @@ st.markdown("""
         box-shadow: 0 3px 10px rgba(0,0,0,0.05);
     }
     
+    /* Tarjetas creativas para Fases */
+    .fase-card-primary {
+        background: linear-gradient(135deg, #ffffff 0%, #fff5f5 100%);
+        padding: 24px;
+        border-radius: 10px;
+        border-top: 6px solid #d32f2f;
+        box-shadow: 0 6px 20px rgba(211, 47, 47, 0.08);
+        height: 100%;
+    }
+    
+    .fase-card-secondary {
+        background: #ffffff;
+        padding: 24px;
+        border-radius: 10px;
+        border-top: 6px solid #333333;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.04);
+        height: 100%;
+    }
+
     .header-container {
         display: flex;
         align-items: center;
@@ -259,7 +278,6 @@ with tab_pulso:
             df_temp.at[idx_estacion[0], columna_politica] = estado_texto
             st.session_state.matriz_red = df_temp
 
-        # Generación de ID blindada contra listas vacías o elementos sin ID
         ids_existentes = [item.get('id', 0) for item in st.session_state.historial_pulsos if isinstance(item, dict)]
         nuevo_id = max(ids_existentes, default=0) + 1
         
@@ -275,7 +293,6 @@ with tab_pulso:
         
         st.success(f"Pulso registrado para {estacion_pulso}. Tablero y matriz actualizados en tiempo real.")
 
-    # SECCIÓN HISTÓRICA CON GESTIÓN Y PROTECCIÓN CONTRA KEYERROR
     st.markdown("<br><hr>", unsafe_allow_html=True)
     st.subheader("Historial Cronológico y Gestión de Auditorías")
     
@@ -345,41 +362,64 @@ with tab_fases:
     st.markdown("Un índice por celda, un piloto antes de escalar a toda la red.")
     st.markdown("<br>", unsafe_allow_html=True)
     
+    # SECCIÓN DE FASES REDISEÑADA CON MUCHA MÁS VIDA Y ESTÉTICA EJECUTIVA
     col_fase1, col_fase2, col_fase3, col_fase4 = st.columns(4)
+    
     with col_fase1:
         st.markdown("""
-        <div style="background:white; padding:20px; border-radius:8px; border-top:4px solid #666; box-shadow: 0 2px 8px rgba(0,0,0,0.04);">
-            <b>FASE 0: Diseño</b><br><span style="color:#666; font-size:12px;">2 a 3 semanas</span>
-            <p style="font-size:12px; margin-top:10px; color:#444;">Estructuración de fichas y validación de indicadores base.</p>
+        <div class="fase-card-secondary">
+            <span style="font-size: 11px; font-weight: 700; color: #666; text-transform: uppercase;">ETAPA INICIAL</span>
+            <h3 style="color: #333; margin: 5px 0 0 0; font-size: 18px;">FASE 0: Diseño</h3>
+            <p style="color: #d32f2f; font-weight: 600; font-size: 13px; margin: 2px 0 10px 0;">2 a 3 semanas</p>
+            <hr style="margin: 8px 0; border: none; border-top: 1px solid #eee;">
+            <p style="font-size: 13px; color: #555; line-height: 1.4;">Estructuración formal de fichas de cambio y validación de indicadores base de red.</p>
         </div>
         """, unsafe_allow_html=True)
+        
     with col_fase2:
         st.markdown("""
-        <div style="background:white; padding:20px; border-radius:8px; border-top:4px solid #d32f2f; box-shadow: 0 2px 8px rgba(0,0,0,0.04);">
-            <b>FASE 1: Piloto</b><br><span style="color:#d32f2f; font-size:12px; font-weight:600;">6 a 8 semanas</span>
-            <p style="font-size:12px; margin-top:10px; color:#444;">Validación de equipaje de mano en 3 a 5 estaciones piloto.</p>
+        <div class="fase-card-primary">
+            <span style="font-size: 11px; font-weight: 700; color: #d32f2f; text-transform: uppercase;">HITO CLAVE</span>
+            <h3 style="color: #d32f2f; margin: 5px 0 0 0; font-size: 18px;">FASE 1: Piloto</h3>
+            <p style="color: #d32f2f; font-weight: 600; font-size: 13px; margin: 2px 0 10px 0;">6 a 8 semanas</p>
+            <hr style="margin: 8px 0; border: none; border-top: 1px solid #ffdada;">
+            <p style="font-size: 13px; color: #333; line-height: 1.4;">Validación controlada de equipaje de mano en 3 a 5 estaciones piloto de diversos perfiles.</p>
         </div>
         """, unsafe_allow_html=True)
+        
     with col_fase3:
         st.markdown("""
-        <div style="background:white; padding:20px; border-radius:8px; border-top:4px solid #666; box-shadow: 0 2px 8px rgba(0,0,0,0.04);">
-            <b>FASE 2: Segunda ola</b><br><span style="color:#666; font-size:12px;">4 a 6 semanas</span>
-            <p style="font-size:12px; margin-top:10px; color:#444;">Expansión controlada a 2 estaciones adicionales.</p>
+        <div class="fase-card-secondary">
+            <span style="font-size: 11px; font-weight: 700; color: #666; text-transform: uppercase;">ESCALAMIENTO</span>
+            <h3 style="color: #333; margin: 5px 0 0 0; font-size: 18px;">FASE 2: Segunda ola</h3>
+            <p style="color: #d32f2f; font-weight: 600; font-size: 13px; margin: 2px 0 10px 0;">4 a 6 semanas</p>
+            <hr style="margin: 8px 0; border: none; border-top: 1px solid #eee;">
+            <p style="font-size: 13px; color: #555; line-height: 1.4;">Expansión controlada incorporando 2 estaciones adicionales según capacidad de asimilación.</p>
         </div>
         """, unsafe_allow_html=True)
+        
     with col_fase4:
         st.markdown("""
-        <div style="background:white; padding:20px; border-radius:8px; border-top:4px solid #666; box-shadow: 0 2px 8px rgba(0,0,0,0.04);">
-            <b>FASE 3: Red completa</b><br><span style="color:#666; font-size:12px;">Operación continua</span>
-            <p style="font-size:12px; margin-top:10px; color:#444;">Cadencia de seguimiento semanal institucionalizada.</p>
+        <div class="fase-card-secondary">
+            <span style="font-size: 11px; font-weight: 700; color: #666; text-transform: uppercase;">CONSOLIDACIÓN</span>
+            <h3 style="color: #333; margin: 5px 0 0 0; font-size: 18px;">FASE 3: Red completa</h3>
+            <p style="color: #d32f2f; font-weight: 600; font-size: 13px; margin: 2px 0 10px 0;">Operación continua</p>
+            <hr style="margin: 8px 0; border: none; border-top: 1px solid #eee;">
+            <p style="font-size: 13px; color: #555; line-height: 1.4;">Institucionalización de la cadencia de seguimiento semanal en toda la red de aeropuertos.</p>
         </div>
         """, unsafe_allow_html=True)
         
     st.markdown("<br><br>", unsafe_allow_html=True)
-    st.markdown("### Composición Ponderada del Índice Operativo")
+    st.markdown("### Composición Ponderada del Índice Operativo por Celda")
+    st.markdown("Cada celda del tablero integra cuatro dimensiones críticas para medir el éxito real del cambio:")
     st.markdown("<br>", unsafe_allow_html=True)
+    
     c_i1, c_i2, c_i3, c_i4 = st.columns(4)
-    c_i1.metric("Cobertura", "20%")
-    c_i2.metric("Ejecución observada", "40%")
-    c_i3.metric("Respuesta única", "20%")
-    c_i4.metric("Persistencia", "20%")
+    with c_i1:
+        st.markdown('<div class="metric-card"><b>Cobertura</b><br><span style="font-size:26px; font-weight:bold; color:#d32f2f;">20%</span><br><span style="font-size:12px; color:#666;">Presencia en estación</span></div>', unsafe_allow_html=True)
+    with c_i2:
+        st.markdown('<div class="metric-card"><b>Ejecución observada</b><br><span style="font-size:26px; font-weight:bold; color:#d32f2f;">40%</span><br><span style="font-size:12px; color:#666;">Pulso en mostrador</span></div>', unsafe_allow_html=True)
+    with c_i3:
+        st.markdown('<div class="metric-card"><b>Respuesta única</b><br><span style="font-size:26px; font-weight:bold; color:#d32f2f;">20%</span><br><span style="font-size:12px; color:#666;">Consistencia agentes</span></div>', unsafe_allow_html=True)
+    with c_i4:
+        st.markdown('<div class="metric-card"><b>Persistencia</b><br><span style="font-size:26px; font-weight:bold; color:#d32f2f;">20%</span><br><span style="font-size:12px; color:#666;">Sostenimiento semanal</span></div>', unsafe_allow_html=True)
